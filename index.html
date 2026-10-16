@@ -3,142 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Delphine Bichet – Speed Typing</title>
+<title>Speed Typing – mots & classements</title>
 <style>
 :root{--bg:#f6f5f1;--card:#fff;--text:#1d1d1b;--muted:#6f6e68;--accent:#d6336c;--ok:#2f9e44;--bad:#e03131;--line:#e6e4dc}
 @media (prefers-color-scheme:dark){:root{--bg:#161618;--card:#212124;--text:#f0efe9;--muted:#9a9990;--accent:#f06595;--ok:#51cf66;--bad:#ff6b6b;--line:#33333a}}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;justify-content:center;padding:24px 16px}
-main{width:100%;max-width:880px;display:grid;gap:20px;grid-template-columns:1fr;align-content:start}
-@media(min-width:800px){main{grid-template-columns:1.3fr 1fr}header{grid-column:1/-1}}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px;display:flex;justify-content:center}
+main{width:100%;max-width:980px;display:grid;gap:18px;grid-template-columns:1fr;align-content:start}
+@media(min-width:820px){main{grid-template-columns:1fr 1.2fr 1fr}header{grid-column:1/-1}}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{margin:0;font-size:1.4rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+h1{margin:0;font-size:1.4rem}h2{margin:0 0 10px;font-size:1.05rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
 .muted{color:var(--muted);font-size:.9rem}
-.target{font-size:2.2rem;font-weight:700;letter-spacing:.02em;margin:14px 0;user-select:none;word-break:break-word}
-.target span.ok{color:var(--ok)}.target span.bad{color:var(--bad);text-decoration:underline}
-input[type=text]{width:100%;padding:14px;font-size:1.3rem;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);outline:none}
+.target{font-size:2rem;font-weight:700;margin:12px 0;user-select:none;word-break:break-word}
+.target .ok{color:var(--ok)}.target .bad{color:var(--bad);text-decoration:underline}
+input[type=text]{width:100%;padding:12px;font-size:1.1rem;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);outline:none;font-family:inherit}
 input[type=text]:focus{border-color:var(--accent)}
-.time{font-size:3rem;font-weight:800;font-variant-numeric:tabular-nums;margin:14px 0 4px;color:var(--accent)}
-button{font:inherit;padding:10px 18px;border-radius:10px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
+.time{font-size:2.6rem;font-weight:800;font-variant-numeric:tabular-nums;margin:12px 0 4px;color:var(--accent)}
+button{font:inherit;padding:10px 16px;border-radius:10px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
 button.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
-ol{list-style:none;margin:12px 0 0;padding:0}
-li{display:flex;gap:10px;padding:9px 6px;border-bottom:1px solid var(--line);align-items:center}
-li:last-child{border:0}
-li .rank{width:26px;color:var(--muted)}li .name{flex:1;overflow:hidden;text-overflow:ellipsis}
-li .t{font-variant-numeric:tabular-nums;font-weight:700}
-li.me{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:8px}
-#login{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.row{display:flex;gap:8px;margin-bottom:10px}
+ul,ol{list-style:none;margin:0;padding:0}
+#words{max-height:340px;overflow:auto}
+#words li{padding:9px 10px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+#words li:hover{background:var(--bg)}#words li.sel{background:color-mix(in srgb,var(--accent) 15%,transparent);font-weight:600}
+#words .n{color:var(--muted);font-size:.8rem;white-space:nowrap}
+#board li{display:flex;gap:10px;padding:8px 6px;border-bottom:1px solid var(--line)}
+#board li.me{background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:8px}
+#board .rank{width:24px;color:var(--muted)}#board .name{flex:1;overflow:hidden;text-overflow:ellipsis}#board .t{font-weight:700;font-variant-numeric:tabular-nums}
+#login{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}
 #login .card{max-width:360px;width:100%;display:grid;gap:12px}
-#err{color:var(--bad);min-height:1.2em;font-size:.9rem}
+#err,#werr{color:var(--bad);min-height:1.1em;font-size:.85rem}
 .hidden{display:none!important}
 </style>
 </head>
 <body>
-<div id="login">
-  <div class="card">
-    <h1>Choisis ton pseudo</h1>
-    <p class="muted" style="margin:0">Pas de mot de passe : juste un pseudo (2-16 caractères).</p>
-    <input type="text" id="u" maxlength="16" placeholder="ton pseudo" autocomplete="off">
-    <div id="err"></div>
-    <button id="go">C'est parti</button>
-  </div>
-</div>
+<div id="login"><div class="card">
+  <h1>Choisis ton pseudo</h1>
+  <p class="muted" style="margin:0">Pas de mot de passe : juste un pseudo (2-16 caractères).</p>
+  <input type="text" id="u" maxlength="16" placeholder="ton pseudo" autocomplete="off">
+  <div id="err"></div><button id="go">C'est parti</button>
+</div></div>
 
 <main>
   <header>
-    <h1>⌨️ Écris « Delphine Bichet » le plus vite possible</h1>
+    <h1>⌨️ Speed Typing</h1>
     <span class="muted">Joueur : <b id="who"></b> · <a href="#" id="logout" style="color:var(--muted)">changer</a></span>
   </header>
+
+  <section class="card">
+    <h2>Les mots</h2>
+    <div class="row"><input type="text" id="newword" maxlength="40" placeholder="Ajouter un mot ou une phrase"><button id="add">+</button></div>
+    <div id="werr"></div>
+    <ul id="words"></ul>
+  </section>
 
   <section class="card">
     <div class="muted">Le chrono démarre à la première touche.</div>
     <div class="target" id="target"></div>
     <input type="text" id="typed" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Tape ici…">
     <div class="time" id="time">0.000 s</div>
-    <div class="muted" id="msg">Prêt ?</div>
+    <div class="muted" id="msg">Choisis un mot</div>
     <p><button class="ghost" id="reset">Recommencer (Échap)</button></p>
   </section>
 
   <aside class="card">
-    <h2 style="margin:0;font-size:1.1rem">🏆 Classement</h2>
+    <h2>🏆 Classement : <span id="bwhich"></span></h2>
     <ol id="board"></ol>
   </aside>
 </main>
 
 <script>
-const TEXT = "Delphine Bichet";
 const $ = id => document.getElementById(id);
-let user = null, token = null, start = null, raf = null, done = false;
+let user = null, token = null, words = [], cur = null, start = null, raf = null, done = false;
 
-// ---------- Auth (pseudo seul) ----------
 async function api(path, body) {
   const r = await fetch(path, body ? {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)} : {});
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || "Erreur serveur");
   return j;
 }
+const fmt = ms => (ms / 1000).toFixed(3) + " s";
+
+// ---------- Auth ----------
 async function login(name) {
-  let saved = null;
-  try { saved = JSON.parse(localStorage.getItem("dbt_user")); } catch {}
+  let saved = null; try { saved = JSON.parse(localStorage.getItem("dbt_user")); } catch {}
   const t = saved && saved.username.toLowerCase() === name.toLowerCase() ? saved.token : "";
-  const j = await api("/api/login", {username: name, token: t});
+  const j = await api("/api/login", {username:name, token:t});
   user = j.username; token = j.token;
   try { localStorage.setItem("dbt_user", JSON.stringify({username:user, token})); } catch {}
-  $("who").textContent = user;
-  $("login").classList.add("hidden");
-  reset(); loadBoard();
+  $("who").textContent = user; $("login").classList.add("hidden");
+  await loadWords(); if (!cur && words.length) pick(words[0].id);
 }
 $("go").onclick = () => login($("u").value.trim()).catch(e => $("err").textContent = e.message);
 $("u").addEventListener("keydown", e => { if (e.key === "Enter") $("go").click(); });
-$("logout").onclick = e => { e.preventDefault(); try{localStorage.removeItem("dbt_user")}catch{}; location.reload(); };
-try { const s = JSON.parse(localStorage.getItem("dbt_user")); if (s) { $("u").value = s.username; login(s.username).catch(()=>{}); } } catch {}
+$("logout").onclick = e => { e.preventDefault(); try { localStorage.removeItem("dbt_user"); } catch {} location.reload(); };
+try { const s = JSON.parse(localStorage.getItem("dbt_user")); if (s) { $("u").value = s.username; login(s.username).catch(() => {}); } } catch {}
+
+// ---------- Mots ----------
+async function loadWords() {
+  words = await api("/api/words");
+  const ul = $("words"); ul.innerHTML = "";
+  for (const w of words) {
+    const li = document.createElement("li");
+    if (cur && cur.id === w.id) li.className = "sel";
+    const a = document.createElement("span"); a.textContent = w.text;
+    const b = document.createElement("span"); b.className = "n";
+    b.textContent = w.plays ? `${fmt(w.best)} · ${w.plays}×` : "nouveau";
+    li.append(a, b); li.onclick = () => pick(w.id); ul.append(li);
+  }
+}
+$("add").onclick = async () => {
+  $("werr").textContent = "";
+  try {
+    const j = await api("/api/words", {username:user, token, text:$("newword").value});
+    $("newword").value = ""; await loadWords(); pick(j.id);
+  } catch (e) { $("werr").textContent = e.message; }
+};
+$("newword").addEventListener("keydown", e => { if (e.key === "Enter") $("add").click(); });
+
+function pick(id) {
+  cur = words.find(w => w.id === id); if (!cur) return;
+  $("bwhich").textContent = cur.text;
+  [...$("words").children].forEach((li, i) => li.classList.toggle("sel", words[i].id === id));
+  reset(); loadBoard();
+}
 
 // ---------- Jeu ----------
 function render(v) {
-  let h = "";
-  for (let i = 0; i < TEXT.length; i++) {
-    const c = TEXT[i] === " " ? "&nbsp;" : TEXT[i];
-    if (i < v.length) h += `<span class="${v[i].toLowerCase() === TEXT[i].toLowerCase() ? "ok" : "bad"}">${c}</span>`;
-    else h += `<span>${c}</span>`;
+  const T = cur ? cur.text : "", t = $("target"); t.textContent = "";
+  for (let i = 0; i < T.length; i++) {
+    const s = document.createElement("span"); s.textContent = T[i] === " " ? "\u00a0" : T[i];
+    if (i < v.length) s.className = v[i].toLowerCase() === T[i].toLowerCase() ? "ok" : "bad";
+    t.append(s);
   }
-  $("target").innerHTML = h;
 }
-function tick() { $("time").textContent = ((performance.now() - start) / 1000).toFixed(3) + " s"; raf = requestAnimationFrame(tick); }
+function tick() { $("time").textContent = fmt(performance.now() - start); raf = requestAnimationFrame(tick); }
 function reset() {
   cancelAnimationFrame(raf); start = null; done = false;
-  $("typed").value = ""; $("typed").disabled = false; $("typed").focus();
-  $("time").textContent = "0.000 s"; $("msg").textContent = "Prêt ?"; render("");
+  $("typed").value = ""; $("typed").disabled = !cur; if (cur) $("typed").focus();
+  $("time").textContent = "0.000 s"; $("msg").textContent = cur ? "Prêt ?" : "Choisis un mot"; render("");
 }
 $("reset").onclick = reset;
 document.addEventListener("keydown", e => { if (e.key === "Escape") reset(); });
 
 $("typed").addEventListener("input", async e => {
-  if (done) return;
+  if (done || !cur) return;
   const v = e.target.value;
   if (!start && v.length) { start = performance.now(); raf = requestAnimationFrame(tick); $("msg").textContent = "Go !"; }
   render(v);
-  if (v.toLowerCase() === TEXT.toLowerCase()) {
+  if (v.toLowerCase() === cur.text.toLowerCase()) {
     done = true; cancelAnimationFrame(raf);
     const ms = Math.round(performance.now() - start);
-    $("time").textContent = (ms / 1000).toFixed(3) + " s";
-    $("typed").disabled = true;
-    $("msg").textContent = "Bravo ! Envoi du score… (Échap pour rejouer)";
-    try { await api("/api/score", {username:user, token, time_ms:ms}); $("msg").textContent = "Score enregistré ✅ (Échap pour rejouer)"; loadBoard(); }
-    catch (err) { $("msg").textContent = "Erreur : " + err.message; }
+    $("time").textContent = fmt(ms); $("typed").disabled = true;
+    $("msg").textContent = "Envoi du score…";
+    try {
+      await api("/api/score", {username:user, token, word_id:cur.id, time_ms:ms});
+      $("msg").textContent = "Score enregistré ✅ (Échap pour rejouer)";
+      loadBoard(); const id = cur.id; await loadWords(); cur = words.find(w => w.id === id);
+    } catch (err) { $("msg").textContent = "Erreur : " + err.message; }
   }
 });
 
 // ---------- Classement ----------
 async function loadBoard() {
+  if (!cur) return;
+  const ol = $("board"); ol.innerHTML = "";
   try {
-    const rows = await api("/api/leaderboard");
-    $("board").innerHTML = rows.length ? rows.map((r, i) =>
-      `<li class="${r.username.toLowerCase() === (user||"").toLowerCase() ? "me" : ""}">
-        <span class="rank">${i + 1}</span><span class="name">${r.username.replace(/[<>&]/g, "")}</span>
-        <span class="t">${(r.best / 1000).toFixed(3)} s</span></li>`).join("")
-      : '<li class="muted">Aucun score pour l\'instant.</li>';
-  } catch { $("board").innerHTML = '<li class="muted">Classement indisponible.</li>'; }
+    const rows = await api("/api/leaderboard?word_id=" + cur.id);
+    if (!rows.length) { ol.innerHTML = '<li class="muted">Aucun score. Sois le premier !</li>'; return; }
+    rows.forEach((r, i) => {
+      const li = document.createElement("li");
+      if (r.username.toLowerCase() === (user || "").toLowerCase()) li.className = "me";
+      const a = document.createElement("span"); a.className = "rank"; a.textContent = i + 1;
+      const b = document.createElement("span"); b.className = "name"; b.textContent = r.username;
+      const c = document.createElement("span"); c.className = "t"; c.textContent = fmt(r.best);
+      li.append(a, b, c); ol.append(li);
+    });
+  } catch { ol.innerHTML = '<li class="muted">Classement indisponible.</li>'; }
 }
 setInterval(loadBoard, 15000);
 render("");
