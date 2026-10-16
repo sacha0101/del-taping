@@ -90,7 +90,7 @@ async function login(name) {
   reset(); loadBoard();
 }
 $("go").onclick = () => login($("u").value.trim()).catch(e => $("err").textContent = e.message);
-$("u").onkeydown = e => e.key === "Enter" && $("go").click();
+$("u").addEventListener("keydown", e => { if (e.key === "Enter") $("go").click(); });
 $("logout").onclick = e => { e.preventDefault(); try{localStorage.removeItem("dbt_user")}catch{}; location.reload(); };
 try { const s = JSON.parse(localStorage.getItem("dbt_user")); if (s) { $("u").value = s.username; login(s.username).catch(()=>{}); } } catch {}
 
