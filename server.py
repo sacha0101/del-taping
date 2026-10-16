@@ -39,7 +39,7 @@ def login():
     data = request.get_json(silent=True) or {}
     username = (data.get("username") or "").strip()
     token = data.get("token") or ""
-    if not re.fullmatch(r"[A-Za-z0-9_\-]{2,16}", username):
+    if not re.fullmatch(r"[\w\- .]{2,16}", username):
         return jsonify(error="Pseudo invalide (2-16 caractères : lettres, chiffres, _ ou -)."), 400
     with db() as c:
         row = c.execute("SELECT username, token FROM users WHERE username = ?", (username,)).fetchone()
